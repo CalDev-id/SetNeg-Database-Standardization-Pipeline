@@ -1,0 +1,5 @@
+fastapi==0.128.8
+uvicorn[standard]==0.39.0
+python-multipart>=0.0.20,<1.0.0
+groq>=0.31.0,<1.0.0
+python-dotenv>=1.0.0,<2.0.0
