@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from routes.audit import router as audit_router
+from api.routes.audit_db import router as audit_router
 
 MAX_PARALLEL_AUDITS = 2
 

@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import uuid4
 
-from pipelines.schema_audit.process import process_schema_audit
-from utils.audit import AuditError, LlmRuntime, buat_batch_audit
-from utils.extract import ParsedDdl, parse_schema_ddl
+from features.audit_db.pipeline import AUDIT_STAGES_PER_BATCH, AuditError, LlmRuntime, process_schema_audit
+from features.audit_db.cari_temuan import buat_batch_audit
+from shared.ddl.parser import ParsedDdl, parse_schema_ddl
 
 
 JOB_TTL_SECONDS = 3600
@@ -39,7 +39,7 @@ async def start_spreadsheet_job(
             del _jobs[old_id]
     job_id = uuid4().hex
     batch_size = max(1, int(getattr(runtime, "batch_size", 50)))
-    total_batches = len(buat_batch_audit(
+    total_batches = AUDIT_STAGES_PER_BATCH * len(buat_batch_audit(
         parsed_ddl, batch_size, getattr(runtime, "max_tables_per_batch", None),
     ))
     _jobs[job_id] = SpreadsheetJob("queued", 0, total_batches, time.monotonic())

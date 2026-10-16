@@ -4,11 +4,10 @@ from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
-from pipelines.schema_audit.process import process_schema_audit
-from pipelines.schema_audit.job_queue import find_spreadsheet_job, start_spreadsheet_job
-from llm.runtime import get_runtime
-from utils.audit import AuditError
-from utils.extract import DdlValidationError
+from features.audit_db.pipeline import AuditError, process_schema_audit
+from shared.jobs.audit_queue import find_spreadsheet_job, start_spreadsheet_job
+from shared.llm.runtime import get_runtime
+from shared.ddl.parser import DdlValidationError
 
 router = APIRouter()
 
@@ -39,7 +38,7 @@ class AuditResponse(BaseModel):
 
 @router.post("", response_model=AuditResponse)
 async def create_audit(
-    file: UploadFile = File(...), model: str = Form("telkom"),
+    file: UploadFile = File(...), model: str = Form("qwen"),
 ) -> AuditResponse:
     if not file.filename or not file.filename.lower().endswith((".sql", ".ddl")):
         raise HTTPException(status_code=415, detail="File harus berformat .sql atau .ddl.")
@@ -60,7 +59,7 @@ async def create_audit(
 async def create_audit_spreadsheet(
     request: Request,
     file: UploadFile = File(...),
-    model: str = Form("telkom"),
+    model: str = Form("qwen"),
 ) -> dict:
     if not file.filename or not file.filename.lower().endswith((".sql", ".ddl")):
         raise HTTPException(status_code=415, detail="File harus berformat .sql atau .ddl.")

@@ -156,8 +156,9 @@
         <form id="uploadForm">
           <label class="field-label" for="model">Model analisis</label>
           <select id="model" class="model-select" name="model">
-            <option value="telkom" selected>Telkom GPT</option>
-            <option value="gemini">Claude</option>
+            <option value="qwen" selected>Qwen</option>
+            <option value="gemini">Gemini</option>
+            <option value="telkom">Telkom GPT</option>
           </select>
           <label class="field-label" for="file">File SQL DDL</label>
           <div class="file-picker">
@@ -351,7 +352,7 @@
       }
       statusText.textContent = job.status === "queued"
         ? "Menunggu giliran audit..."
-        : "Mengaudit batch " + job.completed_batches + " dari " + job.total_batches + "...";
+        : "Memproses tahap audit " + job.completed_batches + " dari " + job.total_batches + "...";
       setTimeout(() => checkStatus(statusUrl), 3000);
     }
 
