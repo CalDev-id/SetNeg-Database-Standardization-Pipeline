@@ -1,3 +1,5 @@
+"""Runtime Gemini yang dapat dipakai lintas fitur."""
+
 import os
 import time
 from typing import Optional

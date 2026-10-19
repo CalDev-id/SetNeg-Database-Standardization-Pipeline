@@ -1,3 +1,5 @@
+"""Runtime Telkom GPT yang dapat dipakai lintas fitur."""
+
 import logging
 import os
 import time

@@ -1,3 +1,5 @@
+"""Pembentukan respons dan spreadsheet hasil audit database."""
+
 from io import BytesIO
 from copy import copy
 from pathlib import Path
@@ -6,11 +8,11 @@ from textwrap import wrap
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
-from utils.audit import Temuan
-from utils.extract import ParsedDdl
+from features.audit_db.audit import Temuan
+from features.audit_db.extract import ParsedDdl
 
 
-TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "template" / "template.xlsx"
+TEMPLATE_PATH = Path(__file__).resolve().parents[2] / "template" / "template.xlsx"
 FIRST_DATA_ROW = 9
 
 

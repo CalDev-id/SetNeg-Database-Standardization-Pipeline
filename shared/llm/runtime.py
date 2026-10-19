@@ -1,5 +1,7 @@
-from llm.gemini_runtime import GeminiRuntime
-from llm.telkom_gpt_runtime import GPTRunTime
+"""Pemilihan runtime LLM lintas fitur."""
+
+from shared.llm.gemini_runtime import GeminiRuntime
+from shared.llm.telkom_gpt_runtime import GPTRunTime
 
 def get_runtime(model: str):
     if model == "telkom":

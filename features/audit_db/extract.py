@@ -1,3 +1,5 @@
+"""Parsing DDL untuk fitur audit database."""
+
 import re
 from dataclasses import dataclass
 from typing import Optional

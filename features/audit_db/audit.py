@@ -1,3 +1,5 @@
+"""Logika analisis DDL untuk fitur audit database."""
+
 import asyncio
 import json
 import re
@@ -5,10 +7,10 @@ from dataclasses import dataclass
 from typing import Callable, Optional, Protocol
 
 from pydantic import BaseModel, Field, TypeAdapter, ValidationError
-from llm.gemini_runtime import GeminiRuntime, GeminiRuntimeError
-from llm.telkom_gpt_runtime import GPTRunTime, TelkomRuntimeError
+from shared.llm.gemini_runtime import GeminiRuntime, GeminiRuntimeError
+from shared.llm.telkom_gpt_runtime import GPTRunTime, TelkomRuntimeError
 from playbook.playbook import SYSTEM_PROMPT
-from utils.extract import Column, ParsedDdl, TableDefinition
+from features.audit_db.extract import Column, ParsedDdl, TableDefinition
 
 
 BATCH_SIZE = 50
