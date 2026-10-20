@@ -21,7 +21,7 @@ class GPTRunTime:
 
     def __init__(self):
         load_dotenv()
-        self.api_key = os.getenv("TELKOM_GPT_API_KEY") or os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv("TELKOM_GPT_API_KEY")
         if not self.api_key:
             raise ValueError("TELKOM_GPT_API_KEY belum tersedia di environment.")
         self.url = os.getenv(
@@ -45,7 +45,7 @@ class GPTRunTime:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            "max_completion_tokens": 10000,
+            "max_completion_tokens": 30000,
             "stream": False,
         }
         headers = {

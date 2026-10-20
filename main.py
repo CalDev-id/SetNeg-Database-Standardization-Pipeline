@@ -7,6 +7,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from api.routes.audit_db import router as audit_router
+from api.routes.data_dictionary import router as data_dictionary_router
+from api.routes.ddl_standard import router as ddl_standard_router
 
 MAX_PARALLEL_AUDITS = 2
 
@@ -25,6 +27,8 @@ app = FastAPI(
 )
 
 app.include_router(audit_router, prefix="/api/v1/audit", tags=["audit"])
+app.include_router(data_dictionary_router, prefix="/api/v1/data-dictionary", tags=["data-dictionary"])
+app.include_router(ddl_standard_router, prefix="/api/v1/ddl-standard", tags=["ddl-standard"])
 app.mount("/static", StaticFiles(directory=Path(__file__).resolve().parent / "static"), name="static")
 
 

@@ -8,6 +8,7 @@ from typing import Callable, Optional, Protocol
 
 from pydantic import BaseModel, Field, TypeAdapter, ValidationError
 from shared.llm.gemini_runtime import GeminiRuntime, GeminiRuntimeError
+from shared.llm.openai_runtime import OpenAIRuntimeError
 from shared.llm.telkom_gpt_runtime import GPTRunTime, TelkomRuntimeError
 from playbook.playbook import SYSTEM_PROMPT
 from features.audit_db.extract import Column, ParsedDdl, TableDefinition
@@ -210,7 +211,6 @@ class Temuan(BaseModel):
     solution: str = Field(alias="Solusi")
     status: str = Field(alias="Status")
     note: str = Field(alias="Catatan")
-    pii_status: str = Field(alias="Status PII")
 
 
 TEMUAN_LIST = TypeAdapter(list[Temuan])
@@ -325,7 +325,7 @@ async def perbaiki_respons_json(
             table_names, database_name, periksa_database,
         )
     except (
-        TelkomRuntimeError, GeminiRuntimeError,
+        TelkomRuntimeError, GeminiRuntimeError, OpenAIRuntimeError,
         FormatTemuanError, ValueError, TypeError,
     ):
         return None
@@ -349,8 +349,6 @@ def validasi_temuan(
             raise ValueError("Objek temuan tidak boleh kosong.")
         if temuan.status != "To Do":
             raise ValueError("Status temuan harus 'To Do'.")
-        if temuan.pii_status not in {"Ya", "Tidak"}:
-            raise ValueError("Status PII harus 'Ya' atau 'Tidak'.")
 
 
 async def audit_ddl(
@@ -383,7 +381,7 @@ async def audit_ddl(
                     runtime.generate_response, SYSTEM_PROMPT, user_prompt,
                 )
             except (
-                TelkomRuntimeError, GeminiRuntimeError,
+                TelkomRuntimeError, GeminiRuntimeError, OpenAIRuntimeError,
             ) as error:
                 raise AuditError(
                     f"LLM gagal menganalisis batch tabel '{', '.join(table_names)}': {error}"

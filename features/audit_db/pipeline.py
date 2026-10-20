@@ -27,10 +27,15 @@ async def process_schema_audit(
     temuan = await audit_ddl(parsed_ddl, runtime=runtime, on_batch_complete=on_batch_complete)
 
     # 3. Buat output sesuai endpoint.
-    if output == "excel":
-        return await asyncio.to_thread(buat_excel_temuan, parsed_ddl.database_name or "-", temuan)
     if output == "json":
         return buat_respons_audit(parsed_ddl, temuan)
+    if output in {"excel", "both"}:
+        spreadsheet = await asyncio.to_thread(
+            buat_excel_temuan, parsed_ddl.database_name or "-", temuan,
+        )
+        if output == "both":
+            return spreadsheet, buat_respons_audit(parsed_ddl, temuan)
+        return spreadsheet
     raise ValueError("Format output tidak dikenal.")
 
 
@@ -44,7 +49,10 @@ class SpreadsheetJob:
     completed_batches: int
     total_batches: int
     started_at: float
+    source_ddl: bytes
+    source_filename: str
     result: Optional[bytes] = None
+    audit_result: Optional[dict] = None
     error: Optional[str] = None
     finished_at: Optional[float] = None
 
@@ -54,7 +62,7 @@ _tasks: set[asyncio.Task] = set()
 
 
 async def start_spreadsheet_job(
-    content: bytes, semaphore: asyncio.Semaphore, runtime: LlmRuntime,
+    content: bytes, filename: str, semaphore: asyncio.Semaphore, runtime: LlmRuntime,
 ) -> str:
     # Validasi SQL sebelum membuat job.
     parsed_ddl = await asyncio.to_thread(parse_schema_ddl, content)
@@ -66,7 +74,14 @@ async def start_spreadsheet_job(
     total_batches = len(buat_batch_audit(
         parsed_ddl, batch_size, getattr(runtime, "max_tables_per_batch", None),
     ))
-    _jobs[job_id] = SpreadsheetJob("queued", 0, total_batches, time.monotonic())
+    _jobs[job_id] = SpreadsheetJob(
+        status="queued",
+        completed_batches=0,
+        total_batches=total_batches,
+        started_at=time.monotonic(),
+        source_ddl=content,
+        source_filename=filename,
+    )
     task = asyncio.create_task(_run_job(job_id, parsed_ddl, semaphore, runtime))
     _tasks.add(task)
     task.add_done_callback(_tasks.discard)
@@ -85,8 +100,8 @@ async def _run_job(
             job.completed_batches += 1
 
         try:
-            job.result = await process_schema_audit(
-                parsed_ddl, "excel", on_batch_complete=batch_complete, runtime=runtime,
+            job.result, job.audit_result = await process_schema_audit(
+                parsed_ddl, "both", on_batch_complete=batch_complete, runtime=runtime,
             )
             job.status = "completed"
         except AuditError as error:

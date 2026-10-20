@@ -27,6 +27,7 @@ def buat_respons_audit(parsed_ddl: ParsedDdl, temuan: list[Temuan]) -> dict:
         "findings": [
             {
                 "no": index,
+                "nama_database": item.database_name,
                 "nama_tabel": item.table_name,
                 "objek_temuan": item.object_name,
                 "aturan_playbook": item.playbook_rule,
@@ -34,7 +35,6 @@ def buat_respons_audit(parsed_ddl: ParsedDdl, temuan: list[Temuan]) -> dict:
                 "solusi": item.solution,
                 "status": item.status,
                 "catatan": item.note,
-                "status_pii": item.pii_status,
             }
             for index, item in enumerate(temuan, start=1)
         ],

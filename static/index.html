@@ -5,109 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Audit Database | Kementerian Sekretariat Negara</title>
   <link rel="icon" type="image/png" href="/static/logo-setneg.png">
-  <style>
-    :root { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #172b44; background: #edf2f7; }
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, #102b4a 0 238px, #edf2f7 238px 100%); }
-    .page-shell { width: min(100%, 1160px); margin: 0 auto; padding: 28px 24px 36px; }
-    .site-header, .brand, .step, .upload-area, .progress-heading { display: flex; align-items: center; }
-    .site-header { justify-content: space-between; gap: 24px; color: white; }
-    .brand { gap: 14px; }
-    .brand-mark { display: grid; place-items: center; width: 64px; height: 64px; flex: none; border-radius: 18px; background: white; box-shadow: 0 8px 20px #06192d40; }
-    .brand-mark img { display: block; width: 53px; height: 53px; object-fit: contain; }
-    .brand-caption { margin: 0 0 3px; color: #c5d5e7; font-size: .74rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
-    .brand strong { font-size: 1.2rem; letter-spacing: -.025em; }
-    .header-tag { padding: 10px 14px; border: 1px solid #ffffff36; border-radius: 999px; color: #dce9f7; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-    .feature-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 30px; }
-    .feature-link { display: flex; width: auto; min-height: 0; margin: 0; padding: 15px 16px; align-items: center; justify-content: flex-start; gap: 12px; min-width: 0; border: 1px solid #ffffff2e; border-radius: 16px; background: #ffffff0c; box-shadow: none; color: #d9e6f4; font: inherit; text-align: left; text-decoration: none; transition: background .2s, border-color .2s, transform .2s; }
-    .feature-link:hover { border-color: #ffffff66; background: #ffffff16; transform: translateY(-1px); }
-    .feature-link.active { border-color: #efc982; background: #f7d99d; color: #173b65; box-shadow: 0 10px 25px #06192d24; }
-    .feature-link:disabled { cursor: pointer; opacity: .78; }
-    .feature-number { display: grid; place-items: center; width: 31px; height: 31px; flex: none; border: 1px solid currentColor; border-radius: 10px; font-size: .71rem; font-weight: 800; }
-    .feature-copy { display: grid; min-width: 0; gap: 2px; }
-    .feature-copy strong { font-size: .87rem; }
-    .feature-copy small { overflow: hidden; font-size: .73rem; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
-    .layout { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: 24px; align-items: stretch; margin-top: 26px; }
-    .intro, .work-card { border-radius: 26px; box-shadow: 0 18px 55px #102b4a17; }
-    .intro { position: relative; overflow: hidden; min-height: 525px; padding: 44px; background: linear-gradient(150deg, #173b65, #0d294a 78%); color: white; }
-    .intro::after { position: absolute; right: -120px; top: -120px; width: 360px; height: 360px; border: 1px solid #ffffff19; border-radius: 50%; box-shadow: 0 0 0 65px #ffffff08, 0 0 0 130px #ffffff05; content: ""; pointer-events: none; }
-    .eyebrow, .card-kicker { margin: 0 0 20px; color: #e5bd76; font-size: .74rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-    h1 { position: relative; max-width: 500px; margin: 0; font-size: clamp(2.3rem, 4vw, 3.4rem); line-height: 1.13; letter-spacing: -.055em; }
-    .intro-copy { position: relative; max-width: 440px; margin: 24px 0 0; color: #c8d9ea; font-size: 1rem; line-height: 1.7; }
-    .steps { position: relative; display: grid; gap: 18px; margin-top: 64px; }
-    .step { gap: 14px; color: #e0ebf5; font-size: .9rem; }
-    .step-number { display: grid; place-items: center; width: 35px; height: 35px; flex: none; border: 1px solid #ffffff40; border-radius: 11px; color: #efca8a; font-size: .75rem; font-weight: 800; }
-    .work-card { padding: 42px; border: 1px solid #e1e9f1; background: white; }
-    .card-kicker { margin-bottom: 10px; color: #a36e27; }
-    h2 { margin: 0; font-size: 1.85rem; letter-spacing: -.045em; }
-    .card-copy { margin: 10px 0 0; color: #617187; font-size: .94rem; line-height: 1.6; }
-    .field-label { display: block; margin: 36px 0 10px; font-size: .86rem; font-weight: 700; }
-    .model-select { width: 100%; min-height: 52px; padding: 0 44px 0 15px; border: 1px solid #c4d1df; border-radius: 13px; appearance: none; background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23174b83' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 16px center / 16px no-repeat; color: #172b44; font: inherit; font-size: .92rem; cursor: pointer; }
-    .model-select:focus { outline: 3px solid #88b7f7; border-color: #31619c; }
-    .model-select:disabled { cursor: default; opacity: .7; }
-    .file-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-    .upload-area { gap: 14px; min-height: 112px; padding: 18px; border: 1.5px dashed #aebfd2; border-radius: 18px; background: #f8fafc; cursor: pointer; transition: border-color .2s, background .2s, transform .2s; }
-    .upload-area:hover { border-color: #31619c; background: #f2f7fc; transform: translateY(-1px); }
-    .file-input:focus-visible + .upload-area { outline: 3px solid #88b7f7; outline-offset: 3px; }
-    .file-input:disabled + .upload-area { cursor: default; opacity: .7; }
-    .upload-icon { display: grid; place-items: center; width: 49px; height: 49px; flex: none; border-radius: 14px; background: #e9f1fa; color: #174b83; }
-    .upload-icon svg { width: 25px; height: 25px; }
-    .upload-copy { display: grid; gap: 5px; min-width: 0; }
-    .upload-copy strong { overflow: hidden; font-size: .92rem; text-overflow: ellipsis; white-space: nowrap; }
-    .upload-copy small { overflow: hidden; color: #718197; font-size: .79rem; text-overflow: ellipsis; white-space: nowrap; }
-    .upload-action { margin-left: auto; color: #174b83; font-size: .83rem; font-weight: 700; }
-    button, .download { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 13px 20px; border: 0; border-radius: 13px; font: inherit; font-size: .92rem; font-weight: 700; text-decoration: none; cursor: pointer; }
-    button { width: 100%; margin-top: 24px; background: #174b83; color: white; box-shadow: 0 8px 20px #174b8333; transition: background .2s, transform .2s; }
-    button:hover { background: #103d6d; transform: translateY(-1px); }
-    button svg, .download svg { width: 18px; height: 18px; }
-    [hidden] { display: none !important; }
-    button:disabled { opacity: .6; cursor: wait; }
-    #progressBox { margin-top: 24px; padding: 18px; border: 1px solid #d9e6f3; border-radius: 16px; background: #f4f8fc; }
-    .progress-heading { gap: 10px; margin-bottom: 13px; }
-    .progress-dot { width: 9px; height: 9px; flex: none; border-radius: 50%; background: #2d78c3; box-shadow: 0 0 0 4px #2d78c31d; }
-    #statusText { flex: 1; margin: 0; font-size: .86rem; font-weight: 700; }
-    #progressPercent { color: #315c8d; font-size: .82rem; font-weight: 800; }
-    progress { display: block; width: 100%; height: 9px; overflow: hidden; border: 0; border-radius: 999px; background: #dce8f4; accent-color: #2d78c3; }
-    progress::-webkit-progress-bar { border-radius: 999px; background: #dce8f4; }
-    progress::-webkit-progress-value { border-radius: 999px; background: #2d78c3; }
-    progress::-moz-progress-bar { border-radius: 999px; background: #2d78c3; }
-    .progress-hint { margin: 11px 0 0; color: #718197; font-size: .76rem; line-height: 1.5; }
-    #error { margin: 0; color: #a7312a; font-size: .86rem; line-height: 1.5; }
-    #error:not(:empty) { margin-top: 18px; padding: 12px 14px; border-radius: 12px; background: #fff1ef; }
-    .download { width: 100%; margin-top: 14px; border: 1px solid #bad0e5; background: white; color: #174b83; }
-    .download:hover { background: #f2f7fc; }
-    .coming-soon { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: 24px; margin-top: 26px; }
-    .coming-soon-card { padding: 46px; border: 1px solid #e1e9f1; border-radius: 26px; background: white; box-shadow: 0 18px 55px #102b4a17; }
-    .coming-soon-card h2 { max-width: 520px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.15; }
-    .coming-soon-card p { max-width: 560px; margin: 16px 0 0; color: #617187; line-height: 1.7; }
-    .coming-soon-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 30px 0 0; padding: 0; list-style: none; }
-    .coming-soon-list li { padding: 15px; border-radius: 14px; background: #f4f8fc; color: #315c8d; font-size: .86rem; font-weight: 700; }
-    .footer { margin-top: 28px; color: #718197; font-size: .76rem; text-align: center; }
-    @media (max-width: 830px) {
-      .feature-nav { grid-template-columns: 1fr; }
-      .layout, .coming-soon { grid-template-columns: 1fr; }
-      .intro { min-height: 0; }
-      .steps { display: flex; flex-wrap: wrap; margin-top: 36px; }
-    }
-    @media (max-width: 540px) {
-      .page-shell { padding: 18px 16px 28px; }
-      .brand-mark { width: 52px; height: 52px; border-radius: 14px; }
-      .brand-mark img { width: 43px; height: 43px; }
-      .brand-caption { font-size: .6rem; }
-      .brand strong { font-size: 1rem; }
-      .header-tag { display: none; }
-      .feature-nav { margin-top: 22px; }
-      .feature-link { padding: 13px; }
-      .layout { margin-top: 28px; gap: 16px; }
-      .intro, .work-card { padding: 26px; border-radius: 20px; }
-      .coming-soon-card { padding: 28px; border-radius: 20px; }
-      .coming-soon-list { grid-template-columns: 1fr; }
-      h1 { font-size: 2.25rem; }
-      .intro-copy { font-size: .92rem; }
-      .steps { display: grid; gap: 12px; }
-      .upload-action { display: none; }
-    }
-  </style>
+  <link rel="stylesheet" href="/static/styles.css?v=26">
+  <script src="/static/app.js?v=26" defer></script>
 </head>
 <body>
   <div class="page-shell">
@@ -157,7 +56,7 @@
           <label class="field-label" for="model">Model analisis</label>
           <select id="model" class="model-select" name="model">
             <option value="telkom" selected>Telkom GPT</option>
-            <option value="gemini">Claude</option>
+            <option value="gpt_setneg">Setneg GPT</option>
           </select>
           <label class="field-label" for="file">File SQL DDL</label>
           <div class="file-picker">
@@ -166,263 +65,261 @@
               <span class="upload-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
               </span>
-              <span class="upload-copy"><strong>Pilih file dari perangkat</strong><small id="fileName">Format .sql atau .ddl</small></span>
-              <span class="upload-action">Jelajahi</span>
+              <span class="upload-copy"><strong id="filePrompt">Pilih file dari perangkat</strong><small id="fileName">Format .sql atau .ddl</small></span>
+              <span id="fileAction" class="upload-action">Jelajahi</span>
             </label>
           </div>
-          <button id="submitButton" type="submit">Analisis dan unduh Excel
+          <button id="submitButton" type="submit">Analisis
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
           </button>
         </form>
+
         <section id="progressBox" hidden aria-live="polite">
           <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="statusText"></p><span id="progressPercent">0%</span></div>
+          <p id="completionMeta" class="completion-meta" hidden></p>
           <progress id="progressBar" max="1" value="0"></progress>
-          <p class="progress-hint">Waktu berjalan: <span id="elapsedTime">00:00</span>. Excel akan diunduh otomatis saat analisis selesai.</p>
+          <p class="progress-hint">Waktu berjalan: <span id="elapsedTime">00:00</span>. Tombol unduh akan tersedia setelah analisis selesai.</p>
         </section>
         <p id="error" role="alert"></p>
-        <a id="downloadLink" class="download" hidden>Unduh Excel manual
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
-        </a>
+        <div id="completedActions" class="completed-actions" hidden>
+          <a id="downloadLink" class="download" hidden>Unduh Excel
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          </a>
+          <button id="nextProcessButton" class="next-process" type="button" hidden>Lanjut ke Data Dictionary
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+          </button>
+        </div>
       </section>
     </main>
-    <section id="comingSoon" class="coming-soon" hidden aria-live="polite">
-      <section class="intro" aria-hidden="true">
-        <p class="eyebrow">Modul berikutnya</p>
-        <h1 id="comingSoonNumber">02</h1>
-        <p id="comingSoonSideCopy" class="intro-copy"></p>
+
+    <main id="dictionaryWorkspace" class="layout" hidden>
+      <section class="intro" aria-labelledby="dictionaryTitle">
+        <p class="eyebrow">Tahap 02</p>
+        <h1 id="dictionaryTitle">Data Dictionary</h1>
+        <p class="intro-copy">Dokumentasi tabel dan kolom untuk memahami struktur database saat ini serta rancangan perbaikannya.</p>
       </section>
-      <section class="coming-soon-card">
-        <p class="card-kicker">Dalam pengembangan</p>
-        <h2 id="comingSoonTitle"></h2>
-        <p id="comingSoonCopy"></p>
-        <ul id="comingSoonList" class="coming-soon-list"></ul>
+
+      <section class="work-card" aria-labelledby="dictionaryInputTitle">
+        <p class="card-kicker">Berkas sumber</p>
+        <h2 id="dictionaryInputTitle">Berkas audit</h2>
+        <p id="dictionaryEmpty" class="card-copy">Belum ada berkas audit. Jalankan Audit Database untuk menyiapkan DDL dan daftar temuan.</p>
+        <p id="dictionaryLoading" class="card-copy" role="status" hidden>Menyiapkan berkas audit...</p>
+        <div id="dictionaryInputs" hidden>
+          <p class="card-copy">DDL dan daftar temuan siap digunakan untuk menyusun Data Dictionary.</p>
+          <ul class="input-files" aria-label="Berkas input Data Dictionary">
+            <li>
+              <span class="file-badge">SQL</span>
+              <span><strong>File DDL Database Lama</strong><small id="sourceDdlName"></small></span>
+            </li>
+            <li>
+              <span class="file-badge excel">XLSX</span>
+              <span><strong>File Excel Hasil Temuan</strong><small id="findingsFileName">temuan_standardisasi.xlsx</small></span>
+            </li>
+          </ul>
+          <p class="handoff-note">Berkas disimpan sementara selama 1 jam setelah audit selesai.</p>
+          <section id="dictionaryProgressBox" class="dictionary-progress" aria-label="Progres Data Dictionary" hidden>
+            <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="dictionaryStatusText" role="status"></p><span id="dictionaryProgressPercent">0%</span></div>
+            <progress id="dictionaryProgressBar" max="100" value="0"></progress>
+            <p class="progress-hint"><span id="dictionaryTimeLabel">Waktu berjalan</span>: <span id="dictionaryElapsed">00:00</span><span id="dictionaryProcessHint"></span></p>
+            <button id="oldDictionaryButton" class="next-process old-dictionary-retry" type="button" hidden>Coba lagi Old Dictionary</button>
+          </section>
+          <div class="dictionary-actions">
+            <button id="classifyButton" class="classify-button" type="button">Proses Data Dictionary</button>
+            <button id="nextDdlButton" class="next-process" type="button" hidden>Lanjut ke DDL Standar</button>
+          </div>
+        </div>
+        <p id="dictionaryError" class="error-text" role="alert"></p>
       </section>
-    </section>
+
+      <section id="oldDictionaryResults" class="dictionary-results" aria-labelledby="oldDictionaryTitle" hidden>
+        <p class="card-kicker">Hasil</p>
+        <h2 id="oldDictionaryTitle">Hasil Data Dictionary</h2>
+        <div class="dictionary-sheet-tabs" role="tablist" aria-label="Sheet Data Dictionary">
+          <button id="dictionaryOldTab" class="dictionary-sheet-tab" type="button" role="tab" aria-selected="true" aria-controls="dictionaryOldPanel" data-dictionary-sheet="old">Dictionary Old</button>
+          <button id="dictionaryNewTab" class="dictionary-sheet-tab" type="button" role="tab" aria-selected="false" aria-controls="dictionaryNewPanel" data-dictionary-sheet="new">Dictionary New</button>
+          <button id="dictionaryLogTab" class="dictionary-sheet-tab" type="button" role="tab" aria-selected="false" aria-controls="dictionaryLogPanel" data-dictionary-sheet="log">Log Perubahan</button>
+        </div>
+        <div id="dictionaryOldPanel" class="sheet-viewport" role="tabpanel" aria-labelledby="dictionaryOldTab" tabindex="0" aria-label="Tabel Dictionary Old">
+          <p id="oldDictionaryPending" class="dictionary-sheet-pending" role="status" hidden>Dictionary Old sedang disusun...</p>
+          <table id="oldDictionaryTable" class="results-table dictionary-sheet">
+            <colgroup>
+              <col class="dictionary-col-no">
+              <col class="dictionary-col-table">
+              <col class="dictionary-col-source">
+              <col class="dictionary-col-kind">
+              <col class="dictionary-col-description">
+              <col class="dictionary-col-column-no">
+              <col class="dictionary-col-column">
+              <col class="dictionary-col-type">
+              <col class="dictionary-col-null">
+              <col class="dictionary-col-key">
+              <col class="dictionary-col-reference">
+              <col class="dictionary-col-default">
+              <col class="dictionary-col-comment">
+              <col class="dictionary-col-fk">
+              <col class="dictionary-col-unique">
+              <col class="dictionary-col-check">
+              <col class="dictionary-col-index">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">No</th>
+                <th scope="col">Nama Tabel</th>
+                <th scope="col">Source</th>
+                <th scope="col">Jenis Tabel</th>
+                <th scope="col">Deskripsi Tabel</th>
+                <th scope="col">No Kolom</th>
+                <th scope="col">Nama Kolom</th>
+                <th scope="col">Tipe Data</th>
+                <th scope="col">Boleh NULL</th>
+                <th scope="col">Key</th>
+                <th scope="col">Referensi FK</th>
+                <th scope="col">Default</th>
+                <th scope="col">Deskripsi Kolom (COMMENT)</th>
+                <th scope="col">FK Constraint</th>
+                <th scope="col">Unique Constraint</th>
+                <th scope="col">Check Constraint</th>
+                <th scope="col">Index</th>
+              </tr>
+            </thead>
+            <tbody id="oldDictionaryBody"></tbody>
+          </table>
+        </div>
+        <div id="dictionaryNewPanel" role="tabpanel" aria-labelledby="dictionaryNewTab" hidden>
+          <div id="dictionaryNewSetup" class="dictionary-sheet-setup">
+            <p id="dictionaryNewEmpty">Dictionary New menunggu hasil klasifikasi tabel.</p>
+            <button id="newDictionaryButton" class="next-process" type="button" hidden>Coba lagi Dictionary New</button>
+          </div>
+          <div id="dictionaryNewTable" class="sheet-viewport" tabindex="0" aria-label="Tabel Dictionary New" hidden>
+            <table class="results-table dictionary-sheet">
+              <thead>
+                <tr>
+                  <th scope="col">No</th><th scope="col">Nama Tabel</th><th scope="col">Source</th>
+                  <th scope="col">Jenis Tabel</th><th scope="col">Deskripsi Tabel</th>
+                  <th scope="col">No Kolom</th><th scope="col">Nama Kolom</th><th scope="col">Tipe Data</th>
+                  <th scope="col">Boleh NULL</th><th scope="col">Key</th><th scope="col">Referensi FK</th>
+                  <th scope="col">Default</th><th scope="col">Deskripsi Kolom (COMMENT)</th>
+                  <th scope="col">FK Constraint</th><th scope="col">Unique Constraint</th>
+                  <th scope="col">Check Constraint</th><th scope="col">Index</th><th scope="col">PII</th>
+                </tr>
+              </thead>
+              <tbody id="newDictionaryBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="dictionaryLogPanel" role="tabpanel" aria-labelledby="dictionaryLogTab" hidden>
+          <div id="dictionaryLogSetup" class="dictionary-sheet-setup">
+            <p id="dictionaryLogEmpty">Log Perubahan akan disusun setelah Dictionary New selesai.</p>
+            <button id="logPerubahanButton" class="next-process" type="button" hidden disabled>Coba lagi Log Perubahan</button>
+          </div>
+          <div id="dictionaryLogTable" class="sheet-viewport" tabindex="0" aria-label="Tabel Log Perubahan" hidden>
+            <table class="results-table dictionary-log-sheet">
+              <thead>
+                <tr>
+                  <th scope="col">No Baru</th><th scope="col">No Lama</th><th scope="col">Jenis Perubahan</th>
+                  <th scope="col">Nama Tabel</th><th scope="col">Objek Temuan</th>
+                  <th scope="col">Aturan Playbook/UU</th><th scope="col">Posisi Sisipan</th>
+                  <th scope="col">Uraian (khusus temuan baru)</th>
+                </tr>
+              </thead>
+              <tbody id="dictionaryLogBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <main id="ddlWorkspace" class="layout" hidden>
+      <section class="intro" aria-labelledby="ddlTitle">
+        <p class="eyebrow">Tahap 03</p>
+        <h1 id="ddlTitle">DDL Standar</h1>
+        <p class="intro-copy">Susun SQL perubahan untuk database saat ini dan SQL pembuatan skema baru berdasarkan Data Dictionary.</p>
+      </section>
+      <section class="work-card" aria-labelledby="ddlInputTitle">
+        <p class="card-kicker">Input proses</p>
+        <h2 id="ddlInputTitle">Siapkan DDL</h2>
+        <p id="ddlInputStatus" class="card-copy">Selesaikan Dictionary Old dan Dictionary New terlebih dahulu.</p>
+        <ul id="ddlInputs" class="input-files" aria-label="Data input DDL Standar" hidden>
+          <li>
+            <span class="file-badge">SQL</span>
+            <span><strong>File DDL Database Lama</strong><small id="ddlSourceName"></small></span>
+          </li>
+          <li>
+            <span class="file-badge dictionary-old">OLD</span>
+            <span><strong>Dictionary Old</strong><small>Struktur database existing</small></span>
+          </li>
+          <li>
+            <span class="file-badge dictionary-new">NEW</span>
+            <span><strong>Dictionary New</strong><small>Rancangan struktur hasil standardisasi</small></span>
+          </li>
+        </ul>
+        <p id="ddlRetentionNote" class="handoff-note" hidden>Data proses tersedia sementara selama 1 jam setelah audit selesai.</p>
+        <section id="ddlProgressBox" class="ddl-progress" aria-label="Progres DDL Standar" hidden>
+          <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="ddlProgressText" role="status"></p><span id="ddlProgressPercent">0%</span></div>
+          <progress id="ddlProgress" max="1" value="0"></progress>
+          <p class="progress-hint"><span id="ddlTimeLabel">Waktu berjalan</span>: <span id="ddlElapsed">00:00</span><span id="ddlProcessHint"></span></p>
+        </section>
+        <button id="ddlGenerateButton" class="classify-button" type="button" hidden>Buat DDL Standar</button>
+        <div id="ddlDownloadActions" class="ddl-download-actions" hidden>
+          <a id="ddlAlterDownload" class="download" download="ddl_alter.sql">Unduh DDL ALTER</a>
+          <a id="ddlCreateDownload" class="download" download="ddl_create.sql">Unduh DDL CREATE</a>
+        </div>
+        <p id="ddlError" class="error-text" role="alert"></p>
+      </section>
+      <section id="ddlResults" class="ddl-results" aria-labelledby="ddlResultsTitle" hidden>
+        <p class="card-kicker">Hasil</p>
+        <h2 id="ddlResultsTitle">SQL siap ditinjau</h2>
+        <p class="card-copy">Tinjau dan cadangkan database sebelum menjalankan skrip. SQL ini tidak dieksekusi otomatis.</p>
+        <div class="dictionary-sheet-tabs" role="tablist" aria-label="Hasil DDL Standar">
+          <button id="ddlAlterTab" class="dictionary-sheet-tab" type="button" role="tab" aria-selected="true" aria-controls="ddlAlterPanel" data-ddl-sheet="alter">DDL ALTER</button>
+          <button id="ddlCreateTab" class="dictionary-sheet-tab" type="button" role="tab" aria-selected="false" aria-controls="ddlCreatePanel" data-ddl-sheet="create">DDL CREATE</button>
+        </div>
+        <section id="ddlAlterPanel" class="ddl-code-panel" role="tabpanel" aria-labelledby="ddlAlterTab"><pre id="ddlAlterPreview" tabindex="0"></pre></section>
+        <section id="ddlCreatePanel" class="ddl-code-panel" role="tabpanel" aria-labelledby="ddlCreateTab" hidden><pre id="ddlCreatePreview" tabindex="0"></pre></section>
+      </section>
+    </main>
     <p class="footer">Standarisasi database berdasarkan playbook DBA</p>
+
+    <section id="auditResults" class="results-card" aria-labelledby="resultsTitle" hidden>
+      <p class="card-kicker">Hasil analisis</p>
+      <h2 id="resultsTitle">Temuan ketidaksesuaian</h2>
+      <p class="card-copy">Rincian hasil audit dalam tabel seperti lembar Excel.</p>
+      <p id="resultsLoading" class="results-message" role="status">Memuat hasil audit...</p>
+      <p id="resultsError" class="error-text" role="alert"></p>
+      <button id="resultsRetry" class="results-retry" type="button" hidden>Coba muat ulang</button>
+      <div id="resultsContent" hidden>
+        <div class="result-stats" aria-label="Ringkasan hasil audit">
+          <div><strong id="resultTableCount">0</strong><span>Tabel</span></div>
+          <div><strong id="resultColumnCount">0</strong><span>Kolom</span></div>
+          <div><strong id="resultFindingCount">0</strong><span>Temuan</span></div>
+        </div>
+        <p id="noFindings" class="results-message" hidden>Tidak ada ketidaksesuaian yang ditemukan.</p>
+        <p id="sheetHint" class="sheet-hint">Geser tabel ke samping untuk melihat semua kolom. Merah menandai penghapusan, kuning menandai penambahan.</p>
+        <div id="sheetViewport" class="sheet-viewport" role="region" aria-label="Tabel temuan audit" tabindex="0">
+          <table class="results-table">
+            <colgroup>
+              <col class="sheet-col-no"><col class="sheet-col-database"><col class="sheet-col-table">
+              <col class="sheet-col-object"><col class="sheet-col-rule"><col class="sheet-col-detail">
+              <col class="sheet-col-solution"><col class="sheet-col-status"><col class="sheet-col-note">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">No</th>
+                <th scope="col">Nama Database</th>
+                <th scope="col">Nama Tabel</th>
+                <th scope="col">Objek Temuan</th>
+                <th scope="col">Aturan Playbook/UU</th>
+                <th scope="col">Uraian Ketidaksesuaian</th>
+                <th scope="col">Solusi</th>
+                <th scope="col">Status</th>
+                <th scope="col">Catatan</th>
+              </tr>
+            </thead>
+            <tbody id="findingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </div>
-  <script>
-    const form = document.getElementById("uploadForm");
-    const fileInput = document.getElementById("file");
-    const modelSelect = document.getElementById("model");
-    const fileName = document.getElementById("fileName");
-    const button = document.getElementById("submitButton");
-    const progressBox = document.getElementById("progressBox");
-    const progressBar = document.getElementById("progressBar");
-    const progressPercent = document.getElementById("progressPercent");
-    const statusText = document.getElementById("statusText");
-    const elapsedTime = document.getElementById("elapsedTime");
-    const errorText = document.getElementById("error");
-    const downloadLink = document.getElementById("downloadLink");
-    const auditWorkspace = document.getElementById("auditWorkspace");
-    const comingSoon = document.getElementById("comingSoon");
-    const comingSoonNumber = document.getElementById("comingSoonNumber");
-    const comingSoonSideCopy = document.getElementById("comingSoonSideCopy");
-    const comingSoonTitle = document.getElementById("comingSoonTitle");
-    const comingSoonCopy = document.getElementById("comingSoonCopy");
-    const comingSoonList = document.getElementById("comingSoonList");
-    const featureButtons = document.querySelectorAll("[data-feature]");
-    const featureContent = {
-      dictionary: {
-        number: "02",
-        title: "Data Dictionary",
-        sideCopy: "Dokumentasi yang menjelaskan struktur dan arti data dalam setiap tabel.",
-        copy: "Modul ini akan menyusun dokumentasi skema dari SQL DDL agar mudah ditinjau oleh DBA, pengembang, dan pemilik data.",
-        items: ["Daftar tabel dan kegunaannya", "Definisi kolom dan tipe data", "Constraint dan relasi", "Penanda data sensitif atau PII"]
-      },
-      ddl: {
-        number: "03",
-        title: "DDL Standar",
-        sideCopy: "Penyusunan SQL DDL yang mengikuti rekomendasi hasil audit dan playbook DBA.",
-        copy: "Modul ini akan membantu menyiapkan DDL standar sebagai bahan review sebelum diterapkan ke database.",
-        items: ["Nama tabel dan kolom sesuai standar", "Primary key dan foreign key yang konsisten", "Audit trail dan COMMENT", "DDL untuk ditinjau sebelum dijalankan"]
-      }
-    };
-    const pendingKey = "auditDatabaseStatusUrl";
-    const jobIdFromUrl = new URLSearchParams(location.search).get("job_id");
-    const statusUrlFromUrl = /^[0-9a-f]{32}$/.test(jobIdFromUrl || "")
-      ? "/api/v1/audit/spreadsheet/" + jobIdFromUrl : null;
-    let elapsedStartedAt = null;
-    let elapsedTimer = null;
-
-    function formatElapsed(seconds) {
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = seconds % 60;
-      return String(minutes).padStart(2, "0") + ":" + String(remainingSeconds).padStart(2, "0");
-    }
-
-    function startElapsed(seconds = 0) {
-      elapsedStartedAt = Date.now() - seconds * 1000;
-      if (elapsedTimer) return;
-      const updateElapsed = () => {
-        elapsedTime.textContent = formatElapsed(Math.floor((Date.now() - elapsedStartedAt) / 1000));
-      };
-      updateElapsed();
-      elapsedTimer = setInterval(updateElapsed, 1000);
-    }
-
-    function stopElapsed() {
-      clearInterval(elapsedTimer);
-      elapsedTimer = null;
-    }
-
-    function clearTracking() {
-      sessionStorage.removeItem(pendingKey);
-      if (statusUrlFromUrl) history.replaceState(null, "", location.pathname);
-    }
-
-    function showProcessing() {
-      button.hidden = true;
-      button.disabled = true;
-      fileInput.disabled = true;
-      modelSelect.disabled = true;
-      progressBox.hidden = false;
-      downloadLink.hidden = true;
-      startElapsed();
-    }
-
-    function showRetry() {
-      button.hidden = false;
-      button.disabled = false;
-      fileInput.disabled = false;
-      modelSelect.disabled = false;
-      progressBox.hidden = true;
-      stopElapsed();
-    }
-
-    async function responseDetail(response) {
-      try {
-        const body = await response.json();
-        return body.detail || "Permintaan gagal.";
-      } catch {
-        return "Permintaan gagal (HTTP " + response.status + ").";
-      }
-    }
-
-    async function checkStatus(statusUrl) {
-      let response;
-      try {
-        response = await fetch(statusUrl, { cache: "no-store" });
-      } catch (error) {
-        statusText.textContent = "Koneksi terputus. Mencoba lagi...";
-        setTimeout(() => checkStatus(statusUrl), 3000);
-        return;
-      }
-      if (response.status === 404) {
-        clearTracking();
-        errorText.textContent = "Proses tidak ditemukan. Server mungkin telah direstart; unggah ulang file.";
-        showRetry();
-        return;
-      }
-      if (!response.ok) {
-        statusText.textContent = "Status belum bisa dibaca. Mencoba lagi...";
-        setTimeout(() => checkStatus(statusUrl), 3000);
-        return;
-      }
-      let job;
-      try {
-        job = await response.json();
-      } catch (error) {
-        statusText.textContent = "Status belum bisa dibaca. Mencoba lagi...";
-        setTimeout(() => checkStatus(statusUrl), 3000);
-        return;
-      }
-      progressBar.max = job.total_batches || 1;
-      progressBar.value = job.completed_batches;
-      progressPercent.textContent = Math.round(100 * progressBar.value / progressBar.max) + "%";
-      startElapsed(job.elapsed_seconds || 0);
-      if (job.status === "completed") {
-        clearTracking();
-        statusText.textContent = "Analisis selesai. Excel siap diunduh.";
-        progressBar.value = progressBar.max;
-        progressPercent.textContent = "100%";
-        stopElapsed();
-        downloadLink.href = job.download_url;
-        downloadLink.hidden = false;
-        fileInput.disabled = false;
-        modelSelect.disabled = false;
-        downloadLink.click();
-        return;
-      }
-      if (job.status === "failed") {
-        clearTracking();
-        errorText.textContent = job.error || "Analisis gagal.";
-        showRetry();
-        return;
-      }
-      statusText.textContent = job.status === "queued"
-        ? "Menunggu giliran audit..."
-        : "Mengaudit batch " + job.completed_batches + " dari " + job.total_batches + "...";
-      setTimeout(() => checkStatus(statusUrl), 3000);
-    }
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const formData = new FormData(form);
-      errorText.textContent = "";
-      showProcessing();
-      progressBar.value = 0;
-      progressPercent.textContent = "0%";
-      statusText.textContent = "Mengunggah file...";
-      try {
-        const response = await fetch("/api/v1/audit/spreadsheet", {
-          method: "POST",
-          body: formData
-        });
-        if (!response.ok) {
-          throw new Error(await responseDetail(response));
-        }
-        const job = await response.json();
-        sessionStorage.setItem(pendingKey, job.status_url);
-        checkStatus(job.status_url);
-      } catch (error) {
-        errorText.textContent = error.message;
-        showRetry();
-      }
-    });
-
-    fileInput.addEventListener("change", () => {
-      fileName.textContent = fileInput.files[0]?.name || "Format .sql atau .ddl";
-      errorText.textContent = "";
-      downloadLink.hidden = true;
-      progressBox.hidden = true;
-      button.hidden = false;
-      button.disabled = false;
-    });
-
-    featureButtons.forEach((feature) => {
-      feature.addEventListener("click", () => {
-        const selectedFeature = feature.dataset.feature;
-        featureButtons.forEach((item) => {
-          const isActive = item === feature;
-          item.classList.toggle("active", isActive);
-          item.setAttribute("aria-pressed", String(isActive));
-        });
-        if (selectedFeature === "audit") {
-          auditWorkspace.hidden = false;
-          comingSoon.hidden = true;
-          return;
-        }
-        const content = featureContent[selectedFeature];
-        auditWorkspace.hidden = true;
-        comingSoonNumber.textContent = content.number;
-        comingSoonSideCopy.textContent = content.sideCopy;
-        comingSoonTitle.textContent = content.title;
-        comingSoonCopy.textContent = content.copy;
-        comingSoonList.replaceChildren(...content.items.map((item) => {
-          const listItem = document.createElement("li");
-          listItem.textContent = item;
-          return listItem;
-        }));
-        comingSoon.hidden = false;
-      });
-    });
-
-    const pendingUrl = statusUrlFromUrl || sessionStorage.getItem(pendingKey);
-    if (pendingUrl) {
-      sessionStorage.setItem(pendingKey, pendingUrl);
-      showProcessing();
-      checkStatus(pendingUrl);
-    }
-  </script>
 </body>
 </html>
