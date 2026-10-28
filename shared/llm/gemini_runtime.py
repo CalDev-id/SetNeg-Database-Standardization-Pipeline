@@ -16,7 +16,7 @@ class GeminiRuntime:
     max_attempts = 3
     max_tables_per_batch = 5
     timeout_seconds = 300
-    retryable_statuses = {500, 502, 503, 504}
+    retryable_statuses = {500, 502, 503, 504, 524}
     retry_batch_size = 8
     MODEL_FALLBACKS = (
         "gemini-3.8-flash",

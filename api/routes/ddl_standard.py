@@ -55,6 +55,7 @@ async def get_ddl_standard(job_id: str) -> dict:
         "total_objects": job.total_objects,
         "elapsed_seconds": int((job.finished_at or time.monotonic()) - job.started_at),
         "error": job.error,
+        "process_events": job.process_events,
         "result": job.result if job.status == "completed" else None,
     }
 

@@ -7,8 +7,9 @@ from dataclasses import dataclass
 from typing import Callable, Optional, Protocol
 
 from pydantic import BaseModel, Field, TypeAdapter, ValidationError
+from shared.batching import MAX_MERGED_REMAINDER, chunk_with_small_remainder
 from shared.llm.gemini_runtime import GeminiRuntime, GeminiRuntimeError
-from shared.llm.openai_runtime import OpenAIRuntimeError
+from shared.llm.openai_runtime import OpenAIEmptyResponseError, OpenAIRuntimeError
 from shared.llm.telkom_gpt_runtime import GPTRunTime, TelkomRuntimeError
 from playbook.playbook import SYSTEM_PROMPT
 from features.audit_db.extract import Column, ParsedDdl, TableDefinition
@@ -71,71 +72,31 @@ def buat_batch_audit(
     current_column_count = 0
 
     for table_name, table in parsed_ddl.tables.items():
-        if current_batch and (
-            current_column_count + len(table.columns) > batch_size
-            or (max_tables is not None and len({part.table_name for part in current_batch}) >= max_tables)
-        ):
+        chunks = chunk_with_small_remainder(table.columns, batch_size)
+        if len(chunks) > 1 and current_batch:
             batches.append(current_batch)
             current_batch = []
             current_column_count = 0
-        column_offset = 0
-        while column_offset < len(table.columns):
-            if current_column_count == batch_size:
+        for index, columns in enumerate(chunks):
+            if current_batch and (
+                current_column_count + len(columns) > batch_size + MAX_MERGED_REMAINDER
+                or (max_tables is not None
+                    and len({part.table_name for part in current_batch}) >= max_tables)
+            ):
                 batches.append(current_batch)
                 current_batch = []
                 current_column_count = 0
-            available_columns = batch_size - current_column_count
-            columns = table.columns[column_offset:column_offset + available_columns]
             current_batch.append(BatchTabel(
-                table_name, table, columns, column_offset == 0,
+                table_name, table, columns, index == 0,
             ))
-            column_offset += len(columns)
             current_column_count += len(columns)
-
-    if current_batch:
-        batches.append(current_batch)
-    return batches
-
-
-def pecah_batch_audit(parts: list[BatchTabel], batch_size: int) -> list[list[BatchTabel]]:
-    batches: list[list[BatchTabel]] = []
-    current_batch: list[BatchTabel] = []
-    current_column_count = 0
-
-    for part in parts:
-        column_offset = 0
-        while column_offset < len(part.columns):
-            if current_column_count == batch_size:
+            if index < len(chunks) - 1:
                 batches.append(current_batch)
                 current_batch = []
                 current_column_count = 0
-            available_columns = batch_size - current_column_count
-            columns = part.columns[column_offset:column_offset + available_columns]
-            current_batch.append(BatchTabel(
-                part.table_name,
-                part.table,
-                columns,
-                part.first_batch and column_offset == 0,
-            ))
-            column_offset += len(columns)
-            current_column_count += len(columns)
 
     if current_batch:
         batches.append(current_batch)
-    return batches
-
-
-def pecah_batch_per_tabel(parts: list[BatchTabel]) -> list[list[BatchTabel]]:
-    # Pisahkan batch gagal menjadi satu kelompok untuk setiap tabel.
-    batches: list[list[BatchTabel]] = []
-    table_indexes: dict[str, int] = {}
-    for part in parts:
-        index = table_indexes.get(part.table_name)
-        if index is None:
-            table_indexes[part.table_name] = len(batches)
-            batches.append([])
-            index = len(batches) - 1
-        batches[index].append(part)
     return batches
 
 
@@ -202,14 +163,14 @@ class FormatTemuanError(ValueError):
 
 
 class Temuan(BaseModel):
-    no: int = Field(ge=1, alias="No")
-    database_name: str = Field(alias="Nama Database")
+    no: int = Field(default=1, ge=1, alias="No")
+    database_name: str = Field(default="-", alias="Nama Database")
     table_name: str = Field(alias="Nama Tabel")
     object_name: str = Field(alias="Objek Temuan")
     playbook_rule: str = Field(alias="Aturan Playbook/UU")
     nonconformity: str = Field(alias="Uraian Ketidaksesuaian")
     solution: str = Field(alias="Solusi")
-    status: str = Field(alias="Status")
+    status: str = Field(default="To Do", alias="Status")
     note: str = Field(alias="Catatan")
 
 
@@ -222,30 +183,6 @@ def bersihkan_json_response(content: str) -> str:
         lines = content.splitlines()
         return "\n".join(lines[1:-1]).strip()
     return content
-
-
-def ambil_object_json_lengkap(content: str) -> Optional[list[dict]]:
-    # Ambil object yang sudah lengkap jika array terpotong di akhir respons.
-    start = content.find("[")
-    if start < 0:
-        return None
-    decoder = json.JSONDecoder()
-    index = start + 1
-    hasil: list[dict] = []
-    while index < len(content):
-        while index < len(content) and content[index] in " \t\r\n,":
-            index += 1
-        if index >= len(content) or content[index] == "]":
-            break
-        try:
-            item, next_index = decoder.raw_decode(content, index)
-        except json.JSONDecodeError:
-            break
-        if not isinstance(item, dict):
-            return None
-        hasil.append(item)
-        index = next_index
-    return hasil or None
 
 
 def abaikan_temuan_database_berulang(data: list, periksa_database: bool) -> list:
@@ -278,11 +215,9 @@ def baca_respons_temuan(
         try:
             data, _ = json.JSONDecoder().raw_decode(cleaned_content[array_start:])
         except json.JSONDecodeError as decode_error:
-            data = ambil_object_json_lengkap(cleaned_content)
-            if data is None:
-                raise FormatTemuanError(
-                    f"Respons LLM untuk batch tabel '{batch_tables}' bukan JSON valid."
-                ) from decode_error
+            raise FormatTemuanError(
+                f"Respons LLM untuk batch tabel '{batch_tables}' bukan JSON valid atau terpotong."
+            ) from decode_error
     if not isinstance(data, list):
         raise FormatTemuanError(
             f"Respons LLM untuk batch tabel '{batch_tables}' harus berupa JSON array."
@@ -296,6 +231,10 @@ def baca_respons_temuan(
         raise FormatTemuanError(
             f"Format temuan LLM pada batch tabel '{batch_tables}' tidak lengkap atau salah: {field} ({first_error['type']})."
         ) from error
+    result = [item.model_copy(update={
+        "database_name": database_name or "-",
+        "status": "To Do",
+    }) for item in result]
     try:
         validasi_temuan(result, table_names, database_name, periksa_database)
     except ValueError as error:
@@ -303,10 +242,7 @@ def baca_respons_temuan(
     return result
 
 
-async def perbaiki_respons_json(
-    content: str, table_names: list[str],
-    database_name: Optional[str], periksa_database: bool,
-) -> Optional[list[Temuan]]:
+async def perbaiki_json_array(content: str) -> Optional[list]:
     try:
         repair_runtime = GeminiRuntime(model=JSON_REPAIR_MODEL)
         repaired_content = await asyncio.to_thread(
@@ -320,14 +256,27 @@ async def perbaiki_respons_json(
         findings = repair_result.get("findings")
         if not isinstance(findings, list):
             return None
+        return findings
+    except (
+        TelkomRuntimeError, GeminiRuntimeError, OpenAIRuntimeError,
+        ValueError, TypeError,
+    ):
+        return None
+
+
+async def perbaiki_respons_json(
+    content: str, table_names: list[str],
+    database_name: Optional[str], periksa_database: bool,
+) -> Optional[list[Temuan]]:
+    findings = await perbaiki_json_array(content)
+    if findings is None:
+        return None
+    try:
         return baca_respons_temuan(
             json.dumps(findings, ensure_ascii=False),
             table_names, database_name, periksa_database,
         )
-    except (
-        TelkomRuntimeError, GeminiRuntimeError, OpenAIRuntimeError,
-        FormatTemuanError, ValueError, TypeError,
-    ):
+    except FormatTemuanError:
         return None
 
 
@@ -336,8 +285,6 @@ def validasi_temuan(
     database_name: Optional[str], check_database: bool,
 ) -> None:
     for temuan in hasil:
-        if database_name and temuan.database_name != database_name:
-            raise ValueError("Nama database pada respons tidak sesuai.")
         if temuan.table_name == "-":
             if not check_database:
                 raise ValueError("Temuan tingkat database hanya boleh pada batch pertama.")
@@ -347,13 +294,15 @@ def validasi_temuan(
             )
         if not temuan.object_name.strip():
             raise ValueError("Objek temuan tidak boleh kosong.")
-        if temuan.status != "To Do":
-            raise ValueError("Status temuan harus 'To Do'.")
 
 
 async def audit_ddl(
     parsed_ddl: ParsedDdl, runtime: Optional[LlmRuntime] = None,
     on_batch_complete: Optional[Callable[[], None]] = None,
+    on_event: Optional[Callable[[str, str], None]] = None,
+    completed_batches: int = 0,
+    previous_findings: Optional[list[Temuan]] = None,
+    on_batch_result: Optional[Callable[[list[Temuan]], None]] = None,
 ) -> list[Temuan]:
     if runtime is None:
         try:
@@ -361,10 +310,10 @@ async def audit_ddl(
         except ValueError as error:
             raise AuditError(str(error)) from error
     batch_size = getattr(runtime, "batch_size", BATCH_SIZE)
-    temuan: list[Temuan] = []
+    temuan: list[Temuan] = list(previous_findings or [])
 
     async def audit_batch(
-        parts: list[BatchTabel], periksa_database: bool,
+        parts: list[BatchTabel], periksa_database: bool, batch_label: str,
     ) -> list[Temuan]:
         table_names = [part.table_name for part in parts]
         user_prompt = build_user_prompt(
@@ -380,9 +329,22 @@ async def audit_ddl(
                 content = await asyncio.to_thread(
                     runtime.generate_response, SYSTEM_PROMPT, user_prompt,
                 )
+            except OpenAIEmptyResponseError as error:
+                if attempt == 0 and error.finish_reason != "length":
+                    if on_event:
+                        on_event("retry", f"Audit batch {batch_label}: respons kosong, mencoba lagi.")
+                    user_prompt = build_retry_prompt(user_prompt, table_names, str(error))
+                    continue
+                if on_event:
+                    on_event("failed", f"Audit batch {batch_label} gagal: {error}")
+                raise AuditError(
+                    f"LLM gagal menganalisis batch tabel '{', '.join(table_names)}': {error}"
+                ) from error
             except (
                 TelkomRuntimeError, GeminiRuntimeError, OpenAIRuntimeError,
             ) as error:
+                if on_event:
+                    on_event("failed", f"Audit batch {batch_label} gagal: {error}")
                 raise AuditError(
                     f"LLM gagal menganalisis batch tabel '{', '.join(table_names)}': {error}"
                 ) from error
@@ -396,24 +358,17 @@ async def audit_ddl(
                     parsed_ddl.database_name, periksa_database,
                 )
                 if repaired_result is not None:
+                    if on_event:
+                        on_event("retry", f"Audit batch {batch_label}: respons diperbaiki menjadi JSON.")
                     return repaired_result
                 if attempt == 0:
+                    if on_event:
+                        on_event("retry", f"Audit batch {batch_label}: respons tidak valid ({error}); mencoba lagi.")
                     user_prompt = build_retry_prompt(user_prompt, table_names, str(error))
                     continue
 
-                retry_batch_size = getattr(runtime, "retry_batch_size", 0)
-                table_batches = pecah_batch_per_tabel(parts)
-                if len(table_batches) > 1:
-                    retry_batches = table_batches
-                else:
-                    retry_batches = pecah_batch_audit(parts, retry_batch_size) if retry_batch_size else []
-                if len(retry_batches) > 1:
-                    result = []
-                    for index, retry_batch in enumerate(retry_batches):
-                        result.extend(await audit_batch(
-                            retry_batch, periksa_database and index == 0,
-                        ))
-                    return result
+                if on_event:
+                    on_event("failed", f"Audit batch {batch_label} gagal: {error}")
                 raise AuditError(str(error)) from error
 
         raise AssertionError("Percobaan audit batch tidak dijalankan.")
@@ -421,11 +376,20 @@ async def audit_ddl(
     batches = buat_batch_audit(
         parsed_ddl, batch_size, getattr(runtime, "max_tables_per_batch", None),
     )
-    for batch_index, batch in enumerate(batches):
+    for batch_index in range(completed_batches, len(batches)):
+        batch = batches[batch_index]
+        batch_label = f"{batch_index + 1}/{len(batches)}"
+        if on_event:
+            on_event("started", f"Audit batch {batch_label} dimulai.")
         periksa_database = batch_index == 0 and bool(parsed_ddl.database_name)
-        temuan.extend(await audit_batch(batch, periksa_database))
+        batch_findings = await audit_batch(batch, periksa_database, batch_label)
+        temuan.extend(batch_findings)
+        if on_batch_result:
+            on_batch_result(batch_findings)
         if on_batch_complete:
             on_batch_complete()
+        if on_event:
+            on_event("completed", f"Audit batch {batch_label} selesai.")
 
     table_order = {name: index for index, name in enumerate(parsed_ddl.tables)}
     temuan.sort(key=lambda item: -1 if item.table_name == "-" else table_order[item.table_name])

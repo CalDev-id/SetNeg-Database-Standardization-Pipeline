@@ -2,12 +2,13 @@ import asyncio
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from api.routes.audit_db import router as audit_router
 from api.routes.data_dictionary import router as data_dictionary_router
+from api.routes.normalization import router as normalization_router
 from api.routes.ddl_standard import router as ddl_standard_router
 
 MAX_PARALLEL_AUDITS = 2
@@ -27,14 +28,27 @@ app = FastAPI(
 )
 
 app.include_router(audit_router, prefix="/api/v1/audit", tags=["audit"])
+app.include_router(normalization_router, prefix="/api/v1/normalization", tags=["normalization"])
 app.include_router(data_dictionary_router, prefix="/api/v1/data-dictionary", tags=["data-dictionary"])
 app.include_router(ddl_standard_router, prefix="/api/v1/ddl-standard", tags=["ddl-standard"])
 app.mount("/static", StaticFiles(directory=Path(__file__).resolve().parent / "static"), name="static")
 
 
 @app.get("/")
-async def read_root() -> FileResponse:
-    return FileResponse(Path(__file__).resolve().parent / "static" / "index.html")
+async def read_root(request: Request):
+    cache_control = request.headers.get("cache-control", "").lower()
+    pragma = request.headers.get("pragma", "").lower()
+    if "no-cache" not in cache_control and "no-cache" not in pragma:
+        return FileResponse(
+            Path(__file__).resolve().parent / "static" / "index.html",
+            headers={"Cache-Control": "no-store"},
+        )
+
+    index_path = Path(__file__).resolve().parent / "static" / "index.html"
+    html = index_path.read_text(encoding="utf-8").replace(
+        "</head>", "  <script>window.__resetWorkflowOnLoad = true;</script>\n</head>",
+    )
+    return HTMLResponse(html, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/health")
