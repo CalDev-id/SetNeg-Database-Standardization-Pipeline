@@ -17,7 +17,9 @@ class TelkomRuntimeError(RuntimeError):
 
 class GPTRunTime:
     max_attempts = 5
-    max_tables_per_batch = 3
+    max_tables_per_batch = 5
+    connect_timeout_seconds = 10
+    read_timeout_seconds = 120
 
     def __init__(self):
         load_dotenv()
@@ -55,9 +57,12 @@ class GPTRunTime:
         }
         for attempt in range(self.max_attempts):
             try:
-                response = requests.post(self.url, headers=headers, json=payload, timeout=120)
+                response = requests.post(
+                    self.url, headers=headers, json=payload,
+                    timeout=(self.connect_timeout_seconds, self.read_timeout_seconds),
+                )
                 if (
-                    response.status_code in {429, 500, 502, 503, 504}
+                    response.status_code in {429, 500, 502, 503, 504, 524}
                     and attempt < self.max_attempts - 1
                 ):
                     time.sleep(self._retry_delay(response, attempt))
@@ -85,6 +90,8 @@ class GPTRunTime:
                         f"Telkom GPT mengembalikan HTTP {error.response.status_code}."
                     ) from error
                 if isinstance(error, requests.RequestException):
-                    raise TelkomRuntimeError("Koneksi ke Telkom GPT gagal.") from error
+                    raise TelkomRuntimeError(
+                        f"Koneksi ke Telkom GPT gagal ({type(error).__name__})."
+                    ) from error
                 raise TelkomRuntimeError("Format respons layanan Telkom GPT tidak dikenali.") from error
         raise TelkomRuntimeError("Telkom GPT gagal memproses batch.")

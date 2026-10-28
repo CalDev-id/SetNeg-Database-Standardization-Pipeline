@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Audit Database | Kementerian Sekretariat Negara</title>
+  <title>Standarisasi Database | Kementerian Sekretariat Negara</title>
   <link rel="icon" type="image/png" href="/static/logo-setneg.png">
-  <link rel="stylesheet" href="/static/styles.css?v=27">
-  <script src="/static/app.js?v=27" defer></script>
+  <link rel="stylesheet" href="/static/styles.css?v=41">
+  <script src="/static/app.js?v=53" defer></script>
 </head>
 <body>
   <div class="page-shell">
@@ -24,7 +24,7 @@
     <nav class="feature-nav" aria-label="Fitur standarisasi database">
       <button class="feature-link active" type="button" data-feature="audit" aria-pressed="true">
         <span class="feature-number">01</span>
-        <span class="feature-copy"><strong>Audit Database</strong><small>Temuan ketidaksesuaian skema</small></span>
+        <span class="feature-copy"><strong>Audit &amp; Normalisasi Database</strong><small>Temuan struktur dan relasi tabel</small></span>
       </button>
       <button class="feature-link" type="button" data-feature="dictionary" aria-pressed="false">
         <span class="feature-number">02</span>
@@ -39,17 +39,17 @@
     <main id="auditWorkspace" class="layout">
       <section class="intro" aria-labelledby="pageTitle">
         <p class="eyebrow">Standarisasi database</p>
-        <h1 id="pageTitle">Audit struktur database, lebih mudah.</h1>
-        <p class="intro-copy">Unggah SQL DDL untuk menemukan ketidaksesuaian terhadap playbook DBA. Hasil audit akan disusun dalam file Excel yang siap ditinjau.</p>
+        <h1 id="pageTitle">Audit &amp; Normalisasi Database</h1>
+        <p class="intro-copy">Unggah SQL DDL untuk meninjau kesesuaian struktur, ketergantungan data, dan relasi antartabel. Hasil kedua analisis disajikan dalam satu laporan.</p>
         <div class="steps" aria-label="Tahapan audit">
           <div class="step"><span class="step-number">01</span><span>Unggah file SQL DDL</span></div>
-          <div class="step"><span class="step-number">02</span><span>Analisis berdasarkan playbook</span></div>
-          <div class="step"><span class="step-number">03</span><span>Unduh hasil Excel</span></div>
+          <div class="step"><span class="step-number">02</span><span>Audit dan normalisasi berjalan bersama</span></div>
+          <div class="step"><span class="step-number">03</span><span>Tinjau hasil dan unduh Excel</span></div>
         </div>
       </section>
 
       <section class="work-card" aria-labelledby="uploadTitle">
-        <p class="card-kicker">Mulai audit</p>
+        <p class="card-kicker">Mulai analisis</p>
         <h2 id="uploadTitle">Unggah berkas</h2>
         <p class="card-copy">Pilih file skema database yang ingin dianalisis.</p>
         <form id="uploadForm">
@@ -57,6 +57,7 @@
           <select id="model" class="model-select" name="model">
             <option value="telkom" selected>Telkom GPT</option>
             <option value="gpt_setneg">Setneg GPT</option>
+            <option value="nutaraline">Nutaraline · DeepSeek V4.1 Flash 1017 LoRA</option>
           </select>
           <label class="field-label" for="file">File SQL DDL</label>
           <div class="file-picker">
@@ -74,13 +75,19 @@
           </button>
         </form>
 
-        <section id="progressBox" hidden aria-live="polite">
-          <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="statusText"></p><span id="progressPercent">0%</span></div>
+        <section id="progressBox" hidden aria-live="polite" aria-label="Progres Audit dan Normalisasi Database">
+          <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="statusText"></p><button id="auditProcessLogToggle" class="dictionary-process-log-toggle" type="button" aria-expanded="false" aria-controls="auditProcessLog" aria-label="Buka detail log Audit dan Normalisasi" title="Detail log proses">i</button><span id="progressPercent">0%</span></div>
           <p id="completionMeta" class="completion-meta" hidden></p>
           <progress id="progressBar" max="1" value="0"></progress>
-          <p class="progress-hint">Waktu berjalan: <span id="elapsedTime">00:00</span>. Tombol unduh akan tersedia setelah analisis selesai.</p>
+          <p class="progress-hint">Waktu berjalan: <span id="elapsedTime">00:00</span></p>
+          <ul id="auditProcessLog" class="dictionary-process-log" hidden></ul>
+          <button id="auditRetryButton" class="results-retry" type="button" hidden>Coba Lagi</button>
         </section>
         <p id="error" role="alert"></p>
+        <div id="normalizationInputs" hidden>
+          <button id="normalizationStartButton" class="classify-button" type="button" hidden>Coba lagi Normalisasi</button>
+          <p id="normalizationError" class="error-text" role="alert"></p>
+        </div>
         <div id="completedActions" class="completed-actions" hidden>
           <a id="downloadLink" class="download" hidden>Unduh Excel
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
@@ -102,10 +109,10 @@
       <section class="work-card" aria-labelledby="dictionaryInputTitle">
         <p class="card-kicker">Berkas sumber</p>
         <h2 id="dictionaryInputTitle">Berkas audit</h2>
-        <p id="dictionaryEmpty" class="card-copy">Belum ada berkas audit. Jalankan Audit Database untuk menyiapkan DDL dan daftar temuan.</p>
+        <p id="dictionaryEmpty" class="card-copy">Selesaikan Audit &amp; Normalisasi Database terlebih dahulu.</p>
         <p id="dictionaryLoading" class="card-copy" role="status" hidden>Menyiapkan berkas audit...</p>
         <div id="dictionaryInputs" hidden>
-          <p class="card-copy">DDL dan daftar temuan siap digunakan untuk menyusun Data Dictionary.</p>
+          <p class="card-copy">DDL dan temuan Audit Playbook dari laporan gabungan siap digunakan untuk menyusun Data Dictionary.</p>
           <ul class="input-files" aria-label="Berkas input Data Dictionary">
             <li>
               <span class="file-badge">SQL</span>
@@ -113,15 +120,17 @@
             </li>
             <li>
               <span class="file-badge excel">XLSX</span>
-              <span><strong>File Excel Hasil Temuan</strong><small id="findingsFileName">temuan_standardisasi.xlsx</small></span>
+              <span><strong>Laporan Audit &amp; Normalisasi</strong><small id="findingsFileName">temuan_audit_normalisasi.xlsx</small></span>
             </li>
           </ul>
           <p class="handoff-note">Berkas disimpan sementara selama 1 jam setelah audit selesai.</p>
           <section id="dictionaryProgressBox" class="dictionary-progress" aria-label="Progres Data Dictionary" hidden>
-            <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="dictionaryStatusText" role="status"></p><span id="dictionaryProgressPercent">0%</span></div>
+            <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="dictionaryStatusText" role="status"></p><button id="dictionaryProcessLogToggle" class="dictionary-process-log-toggle" type="button" aria-expanded="false" aria-controls="dictionaryProcessLog" aria-label="Buka detail log proses" title="Detail log proses">i</button><span id="dictionaryCurrentStageDuration">00:00</span><span id="dictionaryProgressPercent">0%</span></div>
             <progress id="dictionaryProgressBar" max="100" value="0"></progress>
             <p class="progress-hint"><span id="dictionaryTimeLabel">Waktu berjalan</span>: <span id="dictionaryElapsed">00:00</span><span id="dictionaryProcessHint"></span></p>
-            <button id="oldDictionaryButton" class="next-process old-dictionary-retry" type="button" hidden>Coba lagi Old Dictionary</button>
+            <ul id="dictionaryProcessLog" class="dictionary-process-log" hidden></ul>
+            <button id="oldDictionaryButton" class="next-process dictionary-retry" type="button" hidden>Coba lagi Old Dictionary</button>
+            <button id="newDictionaryButton" class="next-process dictionary-retry" type="button" hidden>Coba Lagi</button>
           </section>
           <div class="dictionary-actions">
             <button id="classifyButton" class="classify-button" type="button">Proses Data Dictionary</button>
@@ -188,7 +197,6 @@
         <div id="dictionaryNewPanel" role="tabpanel" aria-labelledby="dictionaryNewTab" hidden>
           <div id="dictionaryNewSetup" class="dictionary-sheet-setup">
             <p id="dictionaryNewEmpty">Dictionary New menunggu hasil klasifikasi tabel.</p>
-            <button id="newDictionaryButton" class="next-process" type="button" hidden>Coba lagi Dictionary New</button>
           </div>
           <div id="dictionaryNewTable" class="sheet-viewport" tabindex="0" aria-label="Tabel Dictionary New" hidden>
             <table class="results-table dictionary-sheet">
@@ -219,7 +227,7 @@
                   <th scope="col">No Baru</th><th scope="col">No Lama</th><th scope="col">Jenis Perubahan</th>
                   <th scope="col">Nama Tabel</th><th scope="col">Objek Temuan</th>
                   <th scope="col">Aturan Playbook/UU</th><th scope="col">Posisi Sisipan</th>
-                  <th scope="col">Uraian (khusus temuan baru)</th>
+                  <th scope="col">Uraian perubahan</th>
                 </tr>
               </thead>
               <tbody id="dictionaryLogBody"></tbody>
@@ -255,9 +263,10 @@
         </ul>
         <p id="ddlRetentionNote" class="handoff-note" hidden>Data proses tersedia sementara selama 1 jam setelah audit selesai.</p>
         <section id="ddlProgressBox" class="ddl-progress" aria-label="Progres DDL Standar" hidden>
-          <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="ddlProgressText" role="status"></p><span id="ddlProgressPercent">0%</span></div>
+          <div class="progress-heading"><span class="progress-dot" aria-hidden="true"></span><p id="ddlProgressText" role="status"></p><button id="ddlProcessLogToggle" class="dictionary-process-log-toggle" type="button" aria-expanded="false" aria-controls="ddlProcessLog" aria-label="Buka detail log DDL Standar" title="Detail log proses">i</button><span id="ddlProgressPercent">0%</span></div>
           <progress id="ddlProgress" max="1" value="0"></progress>
           <p class="progress-hint"><span id="ddlTimeLabel">Waktu berjalan</span>: <span id="ddlElapsed">00:00</span><span id="ddlProcessHint"></span></p>
+          <ul id="ddlProcessLog" class="dictionary-process-log" hidden></ul>
         </section>
         <button id="ddlGenerateButton" class="classify-button" type="button" hidden>Buat DDL Standar</button>
         <div id="ddlDownloadActions" class="ddl-download-actions" hidden>
@@ -282,42 +291,41 @@
 
     <section id="auditResults" class="results-card" aria-labelledby="resultsTitle" hidden>
       <p class="card-kicker">Hasil analisis</p>
-      <h2 id="resultsTitle">Temuan ketidaksesuaian</h2>
-      <p class="card-copy">Rincian hasil audit dalam tabel seperti lembar Excel.</p>
-      <p id="resultsLoading" class="results-message" role="status">Memuat hasil audit...</p>
+      <h2 id="resultsTitle">Temuan Audit Playbook &amp; Normalisasi</h2>
+      <p class="card-copy">Pilih jenis temuan untuk meninjau hasil. Unduhan Excel memuat keduanya dalam satu sheet.</p>
+      <p id="resultsLoading" class="results-message" role="status">Memuat hasil analisis...</p>
       <p id="resultsError" class="error-text" role="alert"></p>
       <button id="resultsRetry" class="results-retry" type="button" hidden>Coba muat ulang</button>
       <div id="resultsContent" hidden>
-        <div class="result-stats" aria-label="Ringkasan hasil audit">
-          <div><strong id="resultTableCount">0</strong><span>Tabel</span></div>
-          <div><strong id="resultColumnCount">0</strong><span>Kolom</span></div>
-          <div><strong id="resultFindingCount">0</strong><span>Temuan</span></div>
+        <div class="dictionary-sheet-tabs" role="tablist" aria-label="Jenis temuan">
+          <button id="auditResultTab" class="dictionary-sheet-tab" type="button" role="tab" aria-selected="true" aria-controls="auditResultPanel" data-result-sheet="audit">Audit Playbook <span id="auditFindingCount" class="result-tab-count">0</span></button>
+          <button id="normalizationResultTab" class="dictionary-sheet-tab" type="button" role="tab" aria-selected="false" aria-controls="normalizationResults" data-result-sheet="normalization">Normalisasi <span id="normalizationFindingCount" class="result-tab-count">0</span></button>
         </div>
-        <p id="noFindings" class="results-message" hidden>Tidak ada ketidaksesuaian yang ditemukan.</p>
-        <p id="sheetHint" class="sheet-hint">Geser tabel ke samping untuk melihat semua kolom. Merah menandai penghapusan, kuning menandai penambahan.</p>
-        <div id="sheetViewport" class="sheet-viewport" role="region" aria-label="Tabel temuan audit" tabindex="0">
-          <table class="results-table">
-            <colgroup>
-              <col class="sheet-col-no"><col class="sheet-col-database"><col class="sheet-col-table">
-              <col class="sheet-col-object"><col class="sheet-col-rule"><col class="sheet-col-detail">
-              <col class="sheet-col-solution"><col class="sheet-col-status"><col class="sheet-col-note">
-            </colgroup>
-            <thead>
-              <tr>
-                <th scope="col">No</th>
-                <th scope="col">Nama Database</th>
-                <th scope="col">Nama Tabel</th>
-                <th scope="col">Objek Temuan</th>
-                <th scope="col">Aturan Playbook/UU</th>
-                <th scope="col">Uraian Ketidaksesuaian</th>
-                <th scope="col">Solusi</th>
-                <th scope="col">Status</th>
-                <th scope="col">Catatan</th>
-              </tr>
-            </thead>
-            <tbody id="findingsBody"></tbody>
-          </table>
+        <div class="result-stats" aria-label="Ringkasan tab terpilih">
+          <div><strong id="resultTableCount">0</strong><span>Tabel pada DDL</span></div>
+          <div><strong id="resultColumnCount">0</strong><span>Kolom pada DDL</span></div>
+          <div><strong id="resultFindingCount">0</strong><span id="resultFindingLabel">Temuan Audit Playbook</span></div>
         </div>
+        <section id="auditResultPanel" role="tabpanel" aria-labelledby="auditResultTab">
+          <p id="noFindings" class="results-message" hidden>Tidak ada temuan Audit Playbook.</p>
+          <p id="sheetHint" class="sheet-hint">Geser tabel ke samping untuk melihat semua kolom. Merah menandai penghapusan, kuning menandai penambahan.</p>
+          <div id="sheetViewport" class="sheet-viewport" role="region" aria-label="Tabel temuan Audit Playbook" tabindex="0">
+            <table class="results-table combined-sheet">
+              <thead><tr><th scope="col">No</th><th scope="col">Nama Database</th><th scope="col">Nama Tabel</th><th scope="col">Objek Temuan</th><th scope="col">Aturan Playbook/UU</th><th scope="col">Uraian Ketidaksesuaian</th><th scope="col">Solusi</th><th scope="col">Status</th><th scope="col">Catatan</th><th scope="col">Jenis Temuan</th></tr></thead>
+              <tbody id="findingsBody"></tbody>
+            </table>
+          </div>
+        </section>
+        <section id="normalizationResults" role="tabpanel" aria-labelledby="normalizationResultTab" hidden>
+          <p id="normalizationNoFindings" class="results-message" hidden>Tidak ada temuan Normalisasi.</p>
+          <p id="normalizationSheetHint" class="sheet-hint">Geser tabel ke samping untuk melihat semua kolom.</p>
+          <div id="normalizationSheet" class="sheet-viewport" role="region" tabindex="0" aria-label="Tabel temuan Normalisasi" hidden>
+            <table class="results-table combined-sheet">
+              <thead><tr><th scope="col">No</th><th scope="col">Nama Database</th><th scope="col">Nama Tabel</th><th scope="col">Objek Temuan</th><th scope="col">Aturan Playbook/UU</th><th scope="col">Uraian Ketidaksesuaian</th><th scope="col">Solusi</th><th scope="col">Status</th><th scope="col">Catatan</th><th scope="col">Jenis Temuan</th></tr></thead>
+              <tbody id="normalizationBody"></tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </section>
   </div>

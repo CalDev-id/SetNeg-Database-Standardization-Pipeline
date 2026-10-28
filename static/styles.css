@@ -93,6 +93,10 @@ button svg, .download svg { width: 18px; height: 18px; }
 #progressBox.is-complete .progress-dot::after { content: "✓"; color: white; font-size: .9rem; font-weight: 800; }
 #progressBox.is-complete #progressBar, #progressBox.is-complete #progressPercent, #progressBox.is-complete .progress-hint { display: none; }
 .completion-meta { margin: 4px 0 0 36px; color: #617187; font-size: .78rem; line-height: 1.4; }
+#progressBox #statusText { flex: 0 1 auto; }
+#progressBox #auditProcessLogToggle { flex: none; margin-left: 0; }
+#progressBox #progressPercent { margin-left: auto; }
+#progressBox.is-error { border-color: #f2c6c0; background: #fff8f7; }
 #statusText { flex: 1; margin: 0; font-size: .86rem; font-weight: 700; }
 #progressPercent { color: #315c8d; font-size: .82rem; font-weight: 800; }
 progress { display: block; width: 100%; height: 9px; overflow: hidden; border: 0; border-radius: 999px; background: #dce8f4; accent-color: #2d78c3; }
@@ -106,6 +110,7 @@ progress::-webkit-progress-value, progress::-moz-progress-bar { border-radius: 9
 .results-message { margin: 24px 0 0; color: #617187; line-height: 1.6; }
 .results-retry { width: auto; min-height: 44px; margin-top: 14px; padding: 10px 16px; }
 .result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 28px; }
+.results-card .result-stats { margin-top: 16px; }
 .result-stats div { display: grid; gap: 2px; padding: 16px 18px; border: 1px solid #d9e6f3; border-radius: 14px; background: #f4f8fc; }
 .result-stats strong { color: #174b83; font-size: 1.5rem; line-height: 1.2; }
 .result-stats span { color: #617187; font-size: .82rem; }
@@ -113,6 +118,10 @@ progress::-webkit-progress-value, progress::-moz-progress-bar { border-radius: 9
 .sheet-viewport { max-height: 650px; overflow: auto; border: 1px solid #cbd9e8; border-radius: 12px; }
 .sheet-viewport:focus-visible { outline: 3px solid #88b7f7; outline-offset: 3px; }
 .results-table { width: 100%; min-width: 1874px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+.combined-sheet { min-width: 2050px; }
+.combined-sheet th:first-child { width: 65px; }
+.combined-sheet th:nth-child(8) { width: 110px; }
+.combined-sheet th:nth-child(10) { width: 130px; }
 .sheet-col-no { width: 64px; }
 .sheet-col-database, .sheet-col-table { width: 165px; }
 .sheet-col-object { width: 190px; }
@@ -147,7 +156,9 @@ progress::-webkit-progress-value, progress::-moz-progress-bar { border-radius: 9
 .dictionary-actions > button:only-child { grid-column: 1 / -1; }
 .dictionary-progress { margin-top: 20px; padding: 18px; border: 1px solid #d9e6f3; border-radius: 16px; background: #f4f8fc; }
 .dictionary-progress .progress-heading { margin-bottom: 13px; }
-#dictionaryStatusText { flex: 1; margin: 0; font-size: .86rem; font-weight: 700; }
+#dictionaryStatusText { flex: 0 1 auto; margin: 0; font-size: .86rem; font-weight: 700; }
+#dictionaryProgressBox #dictionaryProcessLogToggle { flex: none; margin-left: 0; }
+#dictionaryCurrentStageDuration { margin-left: auto; color: #526f91; font-size: .76rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 #dictionaryProgressPercent { color: #315c8d; font-size: .82rem; font-weight: 800; }
 .dictionary-progress.is-error { border-color: #f1c6c1; background: #fff7f6; }
 .dictionary-progress.is-error .progress-dot { background: #b43b33; box-shadow: 0 0 0 4px #b43b331d; }
@@ -158,12 +169,23 @@ progress::-webkit-progress-value, progress::-moz-progress-bar { border-radius: 9
 .dictionary-progress.is-complete progress, .dictionary-progress.is-complete #dictionaryProgressPercent, .ddl-progress.is-complete progress, .ddl-progress.is-complete #ddlProgressPercent { display: none; }
 .dictionary-progress.is-complete #dictionaryStatusText, .ddl-progress.is-complete #ddlProgressText { font-size: .94rem; }
 .dictionary-progress.is-complete .progress-hint, .ddl-progress.is-complete .progress-hint { margin: 5px 0 0 36px; font-size: .82rem; }
+.dictionary-process-log-toggle { display: inline-grid; width: 18px; min-height: 18px; margin: 0 0 0 7px; padding: 0; place-items: center; border: 1px solid #9eb7d1; border-radius: 50%; background: transparent; box-shadow: none; color: #315c8d; font: 800 .69rem/1 Georgia, serif; vertical-align: text-bottom; }
+.dictionary-process-log-toggle:hover { background: #e8f1fa; color: #174b83; transform: none; }
+.dictionary-process-log { display: grid; gap: 0; margin: 12px 0 0; padding: 0; border: 1px solid #d9e6f3; border-radius: 10px; background: #fff; list-style: none; overflow: hidden; }
+.dictionary-process-log li { padding: 9px 11px; border-bottom: 1px solid #e6eef6; color: #52657c; font-size: .72rem; line-height: 1.45; }
+.dictionary-process-log li:last-child { border-bottom: 0; }
+.dictionary-process-log li.is-completed { color: #22713c; }
+.dictionary-process-log li.is-failed { color: #a7312a; background: #fff7f6; }
+.dictionary-process-log li.is-retry { color: #8a5d16; background: #fffaf0; }
 .dictionary-results { grid-column: 1 / -1; padding: 24px; border: 1px solid #e1e9f1; border-radius: 22px; background: white; box-shadow: 0 18px 55px #102b4a17; }
+#normalizationSheet { border-top: 1px solid #cbd9e8; border-radius: 12px; }
 .ddl-results { grid-column: 1 / -1; min-width: 0; padding: 24px; border: 1px solid #e1e9f1; border-radius: 22px; background: white; box-shadow: 0 18px 55px #102b4a17; }
 .ddl-progress { margin-top: 20px; padding: 18px; border: 1px solid #d9e6f3; border-radius: 16px; background: #f4f8fc; }
+.ddl-progress.is-error { border-color: #f2c6c0; background: #fff8f7; }
 .ddl-progress .progress-heading { margin-bottom: 13px; }
-#ddlProgressText { flex: 1; margin: 0; font-size: .86rem; font-weight: 700; }
-#ddlProgressPercent { color: #315c8d; font-size: .82rem; font-weight: 800; }
+#ddlProgressText { flex: 0 1 auto; margin: 0; font-size: .86rem; font-weight: 700; }
+#ddlProcessLogToggle { flex: none; margin-left: 0; }
+#ddlProgressPercent { margin-left: auto; color: #315c8d; font-size: .82rem; font-weight: 800; }
 .ddl-download-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
 .ddl-download-actions .download { width: 100%; }
 .ddl-code-panel { max-height: 620px; overflow: auto; border: 1px solid #cbd9e8; border-top: 0; border-radius: 0 0 12px 12px; background: #f8fafc; }
@@ -172,13 +194,14 @@ progress::-webkit-progress-value, progress::-moz-progress-bar { border-radius: 9
 .dictionary-sheet-tab { width: auto; min-height: 42px; flex: none; padding: 10px 15px; border: 1px solid transparent; border-bottom: 0; border-radius: 10px 10px 0 0; background: transparent; box-shadow: none; color: #617187; font-size: .82rem; }
 .dictionary-sheet-tab:hover { background: #eaf1f9; color: #174b83; transform: none; }
 .dictionary-sheet-tab[aria-selected="true"] { border-color: #cbd9e8; background: #f4f8fc; color: #174b83; }
+.result-tab-count { display: inline-block; min-width: 24px; margin-left: 5px; padding: 2px 6px; border-radius: 999px; background: #e3edf8; color: #174b83; font-size: .73rem; font-weight: 800; text-align: center; }
 .dictionary-results .sheet-viewport { border-top: 0; border-radius: 0 0 12px 12px; }
 .dictionary-sheet-empty { min-height: 180px; padding: 42px 20px; border: 1px solid #cbd9e8; border-top: 0; border-radius: 0 0 12px 12px; background: #f9fbfd; color: #617187; font-size: .86rem; text-align: center; }
 .dictionary-sheet-pending { min-height: 140px; margin: 0; padding: 42px 20px; color: #617187; font-size: .86rem; text-align: center; }
 .dictionary-sheet-setup { padding: 28px; border: 1px solid #cbd9e8; border-top: 0; border-radius: 0 0 12px 12px; background: #f9fbfd; }
 .dictionary-sheet-setup p:first-child { margin: 0 0 18px; color: #617187; font-size: .86rem; }
 .dictionary-sheet-setup .next-process { width: auto; min-height: 44px; padding: 10px 18px; font-size: .83rem; }
-.old-dictionary-retry { margin-top: 12px; }
+.dictionary-progress .dictionary-retry { min-height: 44px; margin-top: 28px; padding: 11px 24px; font-size: .82rem; }
 .dictionary-sheet { min-width: 2703px; }
 .dictionary-log-sheet { min-width: 1600px; }
 .dictionary-log-sheet th, .dictionary-log-sheet td { min-width: 120px; }
@@ -227,7 +250,7 @@ progress::-webkit-progress-value, progress::-moz-progress-bar { border-radius: 9
   .ddl-results { padding: 16px; }
   .dictionary-actions, .ddl-download-actions { grid-template-columns: 1fr; }
   .ddl-download-actions .download { width: 100%; }
-  .old-dictionary-retry { width: 100%; }
+  .dictionary-retry { width: 100%; }
   .result-stats { gap: 8px; }
   .result-stats div { padding: 12px; }
   .completed-actions { align-items: stretch; flex-direction: column; }
